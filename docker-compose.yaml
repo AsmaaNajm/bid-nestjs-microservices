@@ -1,0 +1,95 @@
+version: "3"
+services:
+  api-gateway:
+    container_name: api-gateway-service
+    hostname: gateway
+    build:
+      context: ./
+      dockerfile: ./apps/api-gateway/Dockerfile
+    command: npm run start:dev api-gateway
+    restart: on-failure
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.development
+    networks:
+      - backend
+    volumes:
+      - ./apps/authentication:/app/api-gateway
+      - /app/api-gateway/node_modules
+
+  auth:
+    container_name: authentication-service
+    hostname: authentication
+    build:
+      context: ./
+      dockerfile: ./apps/authentication/Dockerfile
+    command: npm run start:dev authentication
+    restart: on-failure
+    ports:
+      - "3001:3001"
+    env_file:
+      - .env.development
+    networks:
+      - backend
+    volumes:
+      - ./apps/authentication:/app/authentication
+      - /app/authentication/node_modules
+  
+  user:
+    container_name: user-service
+    hostname: user
+    build:
+      context: ./
+      dockerfile: ./apps/user/Dockerfile
+    command: npm run start:dev user
+    restart: on-failure
+    ports:
+      - "3002:3002"
+    env_file:
+      - .env.development
+    networks:
+      - backend
+    volumes:
+      - ./apps/user:/app/user
+      - /app/user/node_modules
+
+  company:
+    container_name: company-service
+    hostname: company
+    build:
+      context: ./
+      dockerfile: ./apps/company/Dockerfile
+    command: npm run start:dev company
+    restart: on-failure
+    ports:
+      - "3003:3003"
+    env_file:
+      - .env.development
+    networks:
+      - backend
+    volumes:
+      - ./apps/company:/app/company
+      - /app/company/node_modules
+  
+  postgres:
+    image: postgres
+    hostname: postgres
+    restart: always
+    env_file:
+      - .env.development
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5433:5433"
+    networks:
+      - backend
+
+networks:
+  backend:
+    external:
+      name: backend
+
+
+volumes:
+  pgdata:
